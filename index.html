@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>A message from ur princess</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(180deg,#ffe6f0,#ffccd5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
+    #container {
+      background: rgba(255,255,255,0.95);
+      border-radius: 20px;
+      padding: 30px;
+      max-width: 600px;
+      text-align: center;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      position: relative;
+      z-index: 2;
+    }
+    h1 { margin-bottom: 10px; font-size: 28px; color: #ff4d6d; }
+    button {
+      padding: 12px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 12px;
+      background: #ff6b81;
+      color: white;
+      cursor: pointer;
+      transition: 0.3s;
+      margin-top: 15px;
+      position: relative;
+    }
+    button:hover { background: #ff4d6d; }
+    #message {
+      margin-top: 25px;
+      font-size: 18px;
+      line-height: 1.5;
+      color: #333;
+      min-height: 120px;
+      text-align: left;
+      opacity: 0;
+    }
+    #feedbackButtons { display: none; margin-top: 20px; position: relative; }
+    #response { margin-top: 20px; font-size: 20px; color: #ff4d6d; min-height: 30px; }
+    canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .emoji {
+      position: absolute;
+      font-size: 24px;
+      animation: floatUp 8s infinite;
+      pointer-events: none;
+    }
+    @keyframes floatUp {
+      0% { transform: translateY(0); opacity: 1; }
+      100% { transform: translateY(-100px); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="hearts"></canvas>
+  <div id="container">
+    <h1>For Divudii ❤️</h1>
+    <button id="revealBtn">Tap to Reveal</button>
+    <p id="message"></p>
+    <div id="feedbackButtons">
+      <button id="likeBtn">I liked it ❤️</button>
+      <button id="dislikeBtn">Not really 😔</button>
+    </div>
+    <p id="response"></p>
+
+    <!-- Background music -->
+    <audio id="song" loop>
+      <source src="https://www.bensound.com/bensound-music/bensound-romantic.mp3" type="audio/mpeg">
+      Your browser does not support the audio element.
+    </audio>
+  </div>
+
+  <script>
+    const revealBtn = document.getElementById('revealBtn');
+    const messageEl = document.getElementById('message');
+    const feedbackButtons = document.getElementById('feedbackButtons');
+    const likeBtn = document.getElementById('likeBtn');
+    const dislikeBtn = document.getElementById('dislikeBtn');
+    const response = document.getElementById('response');
+    const song = document.getElementById('song');
+
+    const messageText = `I know i can be difficult sometimes and i say things i dont mean but truth is divudii I love you much more than you think i do. I miss us divudii. The laughter, the video calls, ur dance moves, every little things we do, im missing it. IM MISSING YOUUUU.But if my final act of love is letting go then i'd do it for ya.Remember im always gonna love you more and i won our love you more battle:)Goodbye my love`;
+
+    function typeMessage(text, element, delay=30){
+      let i=0;
+      element.textContent = '';
+      element.style.opacity = 1;
+      const interval = setInterval(()=>{
+        element.textContent += text.charAt(i);
+        i++;
+        if(i>=text.length) clearInterval(interval);
+      }, delay);
+    }
+
+    revealBtn.addEventListener('click', ()=>{
+      typeMessage(messageText, messageEl);
+      revealBtn.style.display = 'none';
+      feedbackButtons.style.display = 'block';
+      song.volume = 0;
+      song.play();
+
+      let vol = 0;
+      const fadeIn = setInterval(() => {
+        if(vol < 0.5){ vol += 0.01; song.volume = vol; }
+        else clearInterval(fadeIn);
+      }, 100);
+    });
+
+    likeBtn.addEventListener('click', ()=>{
+      response.textContent = "Yippieeeee❤️ Can i get a chums now pwease?";
+      likeBtn.disabled = true;
+      dislikeBtn.disabled = true;
+      launchEmojiConfetti();
+    });
+
+    dislikeBtn.addEventListener('mouseover', moveDislike);
+    dislikeBtn.addEventListener('touchstart', moveDislike);
+
+    function moveDislike(){
+      const parent = feedbackButtons;
+      const maxX = parent.offsetWidth - dislikeBtn.offsetWidth;
+      const maxY = parent.offsetHeight - dislikeBtn.offsetHeight;
+      dislikeBtn.style.position = 'absolute';
+      dislikeBtn.style.left = Math.random()*maxX + 'px';
+      dislikeBtn.style.top = Math.random()*maxY + 'px';
+    }
+
+    // Hearts animation
+    const canvas = document.getElementById('hearts');
+    const ctx = canvas.getContext('2d');
+    let W = canvas.width = window.innerWidth;
+    let H = canvas.height = window.innerHeight;
+
+    window.addEventListener('resize', ()=>{
+      W = canvas.width = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+    });
+
+    const hearts = [];
+    function createHeart(){ hearts.push({ x: Math.random()*W, y: H+20, r: 8+Math.random()*12, d: Math.random()*1+1, color:'rgba(255,77,109,'+Math.random()+')' }); }
+    for(let i=0;i<50;i++) createHeart();
+    function draw(){
+      ctx.clearRect(0,0,W,H);
+      for(let i=0;i<hearts.length;i++){
+        let h = hearts[i];
+        ctx.beginPath();
+        ctx.arc(h.x,h.y,h.r,0,Math.PI*2,false);
+        ctx.fillStyle = h.color;
+        ctx.fill();
+        h.y -= h.d;
+        if(h.y<-10){ hearts[i].y = H+20; hearts[i].x = Math.random()*W; }
+      }
+      requestAnimationFrame(draw);
+    }
+    draw();
+
+    // Emoji animation
+    const emojis = ['💖','🌸','✨'];
+    function createEmoji(){
+      const emoji = document.createElement('div');
+      emoji.classList.add('emoji');
+      emoji.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+      emoji.style.left = `${Math.random()*100}vw`;
+      emoji.style.animationDuration = `${Math.random()*5+5}s`;
+      document.body.appendChild(emoji);
+      setTimeout(()=>emoji.remove(),5000);
+    }
+    setInterval(createEmoji,500);
+
+    function launchEmojiConfetti(){
+      for(let i=0;i<30;i++){ setTimeout(createEmoji,i*100); }
+    }
+  </script>
+</body>
+</html>
